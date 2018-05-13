@@ -1,9 +1,13 @@
 <html>
     <head>
+        <meta name="_token" content="{{ csrf_token() }}">
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
         <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
         <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
         <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css" />
     </head>
     <body class="bg-light">
         <div class="container">
@@ -15,29 +19,31 @@
             <div class="row">
                 <div class="col-md-6 order-md-2 mb-4">
                     <h4 class="mb-3">Search Results</h4>
-                    <ul class="list-group mb-3">
-                        <li class="list-group-item d-flex justify-content-between lh-condensed">
-                            <div>
-                                <h5 class="my-0">Property Name: </h5>
-                                <br>
-                                <p class="text-muted">Price: </p>
-                                <p class="text-muted">Bedrooms: </p>
-                                <p class="text-muted">Bathrooms: </p>
-                                <p class="text-muted">Storeys: </p>
-                                <p class="text-muted">Garages: </p>
-                            </div>
-                        </li>
-                    </ul>
+                    <h3 align="center">Search Results: <span id="total_records"></span></h3>
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Property Name</th>
+                            <th>Price</th>
+                            <th>Bedrooms</th>
+                            <th>Bathrooms</th>
+                            <th>Storeys</th>
+                            <th>Garages</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="col-md-6 order-md-1">
                     <h4 class="mb-3">Search Options</h4>
                     <form class="needs-validation" method="POST" action="">
-                        {{ csrf_field() }}
                         <div class="row">
                             <div class="col-md-8 mb-3">
                                 <label for="name">Property Name</label>
-                                <input type="text" class="form-control" id="name" name="name" placeholder="">
+                                <input type="text" name="name" id="name" class="form-control" placeholder="">
                             </div>
                             <div class="col-md-8 mb-3">
                                 <div data-role="rangeslider">
@@ -52,7 +58,7 @@
                             <div class="col-md-4 mb-3">
                                 <label for="state">Bedrooms</label>
                                 <select class="custom-select d-block w-100" id="bedrooms" name="bedrooms">
-                                    <option value="0">any</option>
+                                    <option value="">Select Bedrooms</option>
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                     <option value="3">3</option>
@@ -62,7 +68,7 @@
                             <div class="col-md-4 mb-3">
                                 <label for="state">Bathrooms</label>
                                 <select class="custom-select d-block w-100" id="bathrooms" name="bathrooms">
-                                    <option value="0">any</option>
+                                    <option value="">Select Bathrooms</option>
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                     <option value="3">3</option>
@@ -72,17 +78,17 @@
                             <div class="col-md-4 mb-3">
                                 <label for="state">Storeys</label>
                                 <select class="custom-select d-block w-100" id="bedrooms" name="bedrooms">
-                                    <option value="0">any</option>
+                                    <option value="">Select storeys</option>
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                     <option value="3">3</option>
                                     <option value="4">4</option>
                                 </select>
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-4 mb-3">a
                                 <label for="state">Garages</label>
                                 <select class="custom-select d-block w-100" id="bathrooms" name="bathrooms">
-                                    <option value="0">any</option>
+                                    <option value="">Select garage space</option>
                                     <option value="1">1</option>
                                     <option value="2">2</option>
                                     <option value="3">3</option>
@@ -96,7 +102,38 @@
                 </div>
             </div>
         </div>
+
         <script type="text/javascript" src="{{ asset('js/app.js') }}"></script>
+
+        <script>
+            $(document).ready(function(){
+
+                fetch_customer_data();
+
+                function fetch_customer_data(name = '')
+                {
+                    $.ajax({
+                        url:"{{ route('search') }}",
+                        method:'GET',
+                        data:{
+                            name: name,
+                        },
+                        dataType:'json',
+                        success:function(data)
+                        {
+                            $('tbody').html(data.table_data);
+                            $('#total_records').text(data.total_data);
+                        }
+                    })
+                }
+
+                $(document).on('keyup', '#name', function(){
+                    var name = $(this).val();
+                    fetch_customer_data(name);
+                });
+
+            });
+        </script>
     </body>
 
 </html>
